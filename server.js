@@ -6,6 +6,16 @@ const app = express();
 const fs = require('fs');
 const path = require('path');
 
+//parse incoming string or array data
+app.use(express.urlencoded({ extended: true }));
+//partse incoming JSON data
+app.use(express.json());
+//path to public folder so it can pick up the files
+app.use(express.static("public"));
+app.get('/animals', (req, res)=> {
+  res.sendFile(path.join(__dirname, './public/animals.html'));
+});
+
 function filterByQuery (query, animalsArray) {
     let personalityTraitsArray = [];
     // Note that we save the animalsArray as filteredResults here:
@@ -61,7 +71,7 @@ function createNewAnimal(body,  animalsArray) {
 }
 
 function validateAnimal(animal) {
-  if (!animal.name || typeof animal.name != 'string') {
+  if (!animal.name || typeof animal.name !== 'string') {
     return false;
   }
   if (!animal.species || typeof animal.species!== 'string') {
@@ -78,12 +88,12 @@ function validateAnimal(animal) {
 
 app.get('/api/animals', (req, res) => {
     let results = animals;
-    console.log(req.query)
     if (req.query) {
         results = filterByQuery(req.query, results);
     }
     res.json(results);
 });
+
 app.get('/api/animals/:id', (req, res) => {
   const result = findById(req.params.id, animals);
   if (result) {
@@ -91,6 +101,14 @@ app.get('/api/animals/:id', (req, res) => {
   } else {
  res.send(404)
   }
+});
+
+app.get('/zookeepers', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/zookeepers.html'));
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '.public/index.html'));
 });
 
 app.post('/api/aimals', (req, res) => {
@@ -102,7 +120,7 @@ app.post('/api/aimals', (req, res) => {
     res.status(400).send('The animal is not properly formatted.');
   } else {
   //add animal to json file and animals to array in this function
-  const animal = createNewAnimal(req.body, animal);
+  const animal = createNewAnimal(req.body, animals);
 
   res.json(animal);
 }
@@ -111,7 +129,8 @@ app.post('/api/aimals', (req, res) => {
 app.listen(PORT, () => {
     console.log(`API server now on port ${PORT}!`);
 });
-//parse incoming string or array data
-app.use(express.urlencoded({ extended: true }));
-//partse incoming JSON data
-app.use(express.json());
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, './public/index.html'));
+});
+
