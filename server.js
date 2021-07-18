@@ -13,7 +13,7 @@ app.use(express.json());
 //path to public folder so it can pick up the files
 app.use(express.static("public"));
 
-app.use('api', apiRoutes);
+app.use('/api', apiRoutes);
 app.use('/', htmlRoutes);
 
 app.listen(PORT, () => {
